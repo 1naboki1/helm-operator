@@ -159,7 +159,10 @@ func (r *Release) prepareChart(client helm.Client, hr *apiV1.HelmRelease) (chart
 		var err error
 
 		chartPath, changed, err = chartsync.EnsureChartFetched(client, r.config.ChartCache, hr.Spec.RepoChartSource)
-		revision = hr.Spec.RepoChartSource.Version
+		if err != nil {
+			return chart{}, nil, err
+		}
+		revision, err = client.GetChartRevision(chartPath)
 		if err != nil {
 			return chart{}, nil, err
 		}
